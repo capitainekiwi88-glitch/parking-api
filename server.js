@@ -6,11 +6,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const mongoURI = "mongodb+srv://admin:sae301@sae301.6nz1bvh.mongodb.net/parkestDB?retryWrites=true&w=majority";
+const mongoURI = process.env.MONGO_URI; 
 
 mongoose.connect(mongoURI)
-    .then(() => console.log("Connecté à la base de données !"))
-    .catch(err => console.log("Erreur de connexion :", err));
+  .then(() => console.log("Connecté à MongoDB !"))
+  .catch(err => console.error("Erreur :", err));
 
 const User = mongoose.model('User', new mongoose.Schema({
     username: { type: String, unique: true },
@@ -48,4 +48,5 @@ app.get('/api/getParams', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => console.log("Le serveur tourne sur le port " + PORT));
