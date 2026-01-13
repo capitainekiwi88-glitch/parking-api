@@ -7,7 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- Fonctions de sécurité ---
 const hashPassword = (password) => {
     const salt = randomBytes(16).toString('hex');
     const hashedPassword = scryptSync(password, salt, 64).toString('hex');
@@ -26,7 +25,6 @@ mongoose.connect(mongoURI)
   .then(() => console.log("Connecté à MongoDB !"))
   .catch(err => console.error("Erreur :", err));
 
-// --- Schéma mis à jour avec tes 3 booleans ---
 const User = mongoose.model('User', new mongoose.Schema({
     username: { type: String, unique: true },
     password: { type: String },
@@ -47,22 +45,26 @@ app.post('/api/register', async (req, res) => {
         const userData = { ...req.body };
         userData.password = hashPassword(userData.password);
         
-        // On initialise des params par défaut si vides
         if (!userData.params) {
             userData.params = { hauteur: 1.90, pmr: false, free: false, elec: false, dspOnly: false };
         }
 
         const user = new User(userData);
         await user.save();
-        res.status(200).json({ message: "OK" });
-    } catch (e) { res.status(400).json({ error: "Erreur lors de l'inscription" }); }
+
+        res.status(200).json({ 
+            token: user._id, 
+            message: "OK" 
+        });
+    } catch (e) { 
+        res.status(400).json({ error: "Erreur lors de l'inscription" }); 
+    }
 });
 
 app.post('/api/login', async (req, res) => {
     try {
         const user = await User.findOne({ username: req.body.username });
         if (user && verifyPassword(req.body.password, user.password)) {
-            // On renvoie le token ET les params pour synchroniser le store Svelte immédiatement
             res.status(200).json({ 
                 token: user._id,
                 params: user.params 
@@ -75,7 +77,6 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/updateParams', async (req, res) => {
     try {
-        // Met à jour l'objet params complet
         await User.findByIdAndUpdate(req.body.token, { params: req.body.params });
         res.status(200).json({ message: "OK" });
     } catch (e) { res.status(400).json({ error: "Échec de la mise à jour" }); }
@@ -90,3 +91,4 @@ app.get('/api/getParams', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Le serveur tourne sur le port " + PORT));
+
