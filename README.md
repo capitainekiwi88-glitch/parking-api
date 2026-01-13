@@ -12,8 +12,6 @@ Ceci est l'API REST de l'application **Parkest**. Elle gère l'authentification 
 
 L'API est construite avec **Node.js** et le framework **Express**. Les données sont stockées sur un cluster **MongoDB Atlas**.
 
-[Image of a REST API architecture diagram showing client requests, Express routes, and MongoDB database interaction]
-
 ### Points clés :
 * **Authentification :** Gestion des inscriptions et connexions.
 * **Persistance :** Stockage des filtres utilisateur (PMR, électrique, gratuité).
